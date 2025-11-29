@@ -3,57 +3,194 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>sandboxBaseUrl Test</title>
+  <title>sandboxBaseUrl Feature Demo</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; }
-    h1 { color: #333; }
-    .info { background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+    h1 { color: #333; border-bottom: 2px solid #1976d2; padding-bottom: 10px; }
+    h2 { color: #1976d2; margin-top: 40px; }
+    h3 { color: #555; }
+    code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f5f5f5; padding: 15px; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; padding: 0; }
+    .info { background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #1976d2; }
+    .warning { background: #fff3e0; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800; }
     .test { background: #fff; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
     .test h3 { margin-top: 0; }
-    pre.mermaid { background: #f5f5f5; padding: 15px; border-radius: 4px; }
+    pre.mermaid { background: #fafafa; padding: 15px; border-radius: 4px; border: 1px solid #e0e0e0; }
+    table { border-collapse: collapse; width: 100%; margin: 15px 0; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f5f5f5; }
+    .anchor-target { background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50; }
   </style>
 </head>
 <body>
-  <h1>sandboxBaseUrl Feature Test</h1>
+  <h1>sandboxBaseUrl Feature Demo</h1>
 
   <div class="info">
-    <strong>This page tests the <code>sandboxBaseUrl</code> config option.</strong><br>
-    When using <code>securityLevel: 'sandbox'</code>, relative URLs in diagram links normally don't work
-    because data: URIs have no base URL context. The <code>sandboxBaseUrl</code> option fixes this by
-    pre-resolving relative URLs before embedding in the sandbox iframe.
+    <strong>New Feature: <code>sandboxBaseUrl</code> Configuration Option</strong>
+    <p>
+      This page demonstrates the new <code>sandboxBaseUrl</code> configuration option for Mermaid.js,
+      which enables relative URL resolution when using <code>securityLevel: 'sandbox'</code>.
+    </p>
   </div>
 
+  <h2 id="problem">The Problem</h2>
+  <p>
+    When Mermaid renders diagrams with <code>securityLevel: 'sandbox'</code>, the SVG is embedded
+    inside an iframe using a <code>data:</code> URI. This provides strong security isolation but
+    creates a problem: <strong>relative URLs in clickable links don't work</strong>.
+  </p>
+  <p>
+    This happens because <code>data:</code> URIs have no base URL context. When you click a link
+    like <code>./page.html</code> inside a data URI iframe, the browser has no way to resolve
+    what <code>./</code> refers to.
+  </p>
+
+  <h2 id="solution">The Solution</h2>
+  <p>
+    The <code>sandboxBaseUrl</code> option tells Mermaid what base URL to use for resolving
+    relative links. Before embedding the SVG in the sandbox iframe, Mermaid pre-resolves all
+    relative URLs to absolute URLs using this base.
+  </p>
+
+  <h2 id="configuration">Configuration</h2>
+  <p>Add <code>sandboxBaseUrl</code> to your Mermaid configuration:</p>
+
+  <pre><code>mermaid.initialize({
+  startOnLoad: true,
+  securityLevel: 'sandbox',
+  sandboxBaseUrl: window.location.href  // or any absolute URL
+});</code></pre>
+
+  <table>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><code>sandboxBaseUrl</code></td>
+      <td>string</td>
+      <td>Base URL for resolving relative links. Only applies when <code>securityLevel</code> is <code>'sandbox'</code>.</td>
+    </tr>
+  </table>
+
+  <div class="warning">
+    <strong>Note:</strong> This option only affects sandbox mode. In other security levels
+    (<code>strict</code>, <code>loose</code>, <code>antiscript</code>), relative URLs work
+    normally because the SVG is rendered directly in the page context.
+  </div>
+
+  <h2 id="demo">Interactive Demo</h2>
+
   <div class="test">
-    <h3>Test: Clickable Links with sandboxBaseUrl</h3>
-    <p>Click "Docs" to test relative URL resolution, or "GitHub" for absolute URL:</p>
+    <h3>Test 1: Relative Link Resolution</h3>
+    <p>Click <strong>"Index Page"</strong> to test relative URL resolution (opens <code>./index.html</code>):</p>
     <pre class="mermaid">
 flowchart LR
-    A[Home] --> B[Docs]
+    A[This Page] --> B[Index Page]
     A --> C[GitHub]
 
-    click B "./docs.html" "Relative link - should resolve correctly"
+    click B "./index.html" "Relative link - should open index.html"
     click C "https://github.com/mermaid-js/mermaid" "Absolute link - opens GitHub"
+    </pre>
+    <p><em>Without <code>sandboxBaseUrl</code>, clicking "Index Page" would fail silently.</em></p>
+  </div>
+
+  <div class="test">
+    <h3>Test 2: Hash/Anchor Links</h3>
+    <p>Click to jump to different sections of this page:</p>
+    <pre class="mermaid">
+flowchart TD
+    A["#problem"] --> B["#solution"]
+    B --> C["#configuration"]
+    C --> D["#url-types"]
+    D --> E["#demo"]
+
+    click A "#problem" "Jump to Problem section"
+    click B "#solution" "Jump to Solution section"
+    click C "#configuration" "Jump to Configuration section"
+    click D "#url-types" "Jump to URL Types section"
+    click E "#demo" "Jump to Demo section"
     </pre>
   </div>
 
   <div class="test">
-    <h3>Test: Various URL Patterns</h3>
+    <h3>Test 3: Various URL Patterns</h3>
+    <p>This diagram shows different URL types that are handled:</p>
     <pre class="mermaid">
 flowchart TD
-    A["Relative ./"] --> B["Parent ../"]
-    B --> C["Root /"]
-    C --> D["Hash #section"]
-    D --> E["External"]
+    A["Relative: ./index.html"] --> B["Hash: #url-types"]
+    B --> C["Absolute: https://mermaid.js.org"]
 
-    click A "./page.html"
-    click B "../parent.html"
-    click C "/root.html"
-    click D "#test-section"
-    click E "https://mermaid.js.org"
+    click A "./index.html" "Relative URL - resolved using sandboxBaseUrl"
+    click B "#url-types" "Hash URL - jumps to section below"
+    click C "https://mermaid.js.org" "Absolute URL - unchanged, opens directly"
     </pre>
   </div>
 
-  <p id="test-section"><strong>Hash link target:</strong> If you clicked the hash link, you should scroll here.</p>
+  <h2 id="url-types">URL Types Handled</h2>
+  <div class="anchor-target">
+    <strong>You navigated here!</strong> If you clicked a hash link from the diagram above, it worked correctly.
+  </div>
+
+  <table>
+    <tr>
+      <th>URL Pattern</th>
+      <th>Example</th>
+      <th>Behavior</th>
+    </tr>
+    <tr>
+      <td>Relative</td>
+      <td><code>./page.html</code>, <code>../parent.html</code></td>
+      <td>Resolved against <code>sandboxBaseUrl</code></td>
+    </tr>
+    <tr>
+      <td>Root-relative</td>
+      <td><code>/absolute/path.html</code></td>
+      <td>Resolved against origin of <code>sandboxBaseUrl</code></td>
+    </tr>
+    <tr>
+      <td>Hash/Anchor</td>
+      <td><code>#section-id</code></td>
+      <td>Resolved against <code>sandboxBaseUrl</code></td>
+    </tr>
+    <tr>
+      <td>Absolute</td>
+      <td><code>https://example.com</code></td>
+      <td>Unchanged (already absolute)</td>
+    </tr>
+    <tr>
+      <td>Protocol-relative</td>
+      <td><code>//example.com/path</code></td>
+      <td>Unchanged (already absolute)</td>
+    </tr>
+    <tr>
+      <td>Special protocols</td>
+      <td><code>mailto:</code>, <code>tel:</code>, <code>javascript:</code></td>
+      <td>Unchanged</td>
+    </tr>
+  </table>
+
+  <h2 id="implementation">Implementation Details</h2>
+  <p>The feature works by:</p>
+  <ol>
+    <li>Parsing the rendered SVG content</li>
+    <li>Finding all <code>href</code> and <code>xlink:href</code> attributes</li>
+    <li>Resolving relative URLs using JavaScript's <code>URL</code> constructor</li>
+    <li>Replacing the original URLs with resolved absolute URLs</li>
+    <li>Embedding the modified SVG in the sandbox iframe</li>
+  </ol>
+
+  <h2 id="source">Source Code</h2>
+  <p>
+    This feature is implemented in the main Mermaid.js repository. The key files are:
+  </p>
+  <ul>
+    <li><code>packages/mermaid/src/utils/sandboxUrl.ts</code> - URL resolution utility</li>
+    <li><code>packages/mermaid/src/mermaidAPI.ts</code> - Integration in putIntoIFrame()</li>
+    <li><code>packages/mermaid/src/schemas/config.schema.yaml</code> - Config schema</li>
+  </ul>
 
   <script src="./mermaid.min.js"></script>
   <script>
