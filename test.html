@@ -181,12 +181,16 @@ flowchart TD
   <h2 id="implementation">Implementation Details</h2>
   <p>The feature works by:</p>
   <ol>
-    <li>Parsing the rendered SVG content</li>
-    <li>Finding all <code>href</code> and <code>xlink:href</code> attributes</li>
-    <li>Resolving relative URLs using JavaScript's <code>URL</code> constructor</li>
-    <li>Replacing the original URLs with resolved absolute URLs</li>
-    <li>Embedding the modified SVG in the sandbox iframe</li>
+    <li>Rendering the SVG to a live DOM element</li>
+    <li>Finding elements with <code>href</code> and <code>xlink:href</code> attributes using <code>querySelectorAll</code></li>
+    <li>Resolving relative URLs directly on the DOM using JavaScript's <code>URL</code> constructor</li>
+    <li>Extracting <code>innerHTML</code> (with URLs already resolved)</li>
+    <li>Embedding the SVG in the sandbox iframe</li>
   </ol>
+  <p>
+    This DOM-based approach avoids parsing and re-serializing the SVG string, and has zero overhead
+    when <code>sandboxBaseUrl</code> is not configured.
+  </p>
 
   <h2 id="source">Source Code</h2>
   <p>
@@ -194,7 +198,7 @@ flowchart TD
   </p>
   <ul>
     <li><code>packages/mermaid/src/utils/sandboxUrl.ts</code> - URL resolution utility</li>
-    <li><code>packages/mermaid/src/mermaidAPI.ts</code> - Integration in putIntoIFrame()</li>
+    <li><code>packages/mermaid/src/mermaidAPI.ts</code> - Integration before innerHTML extraction</li>
     <li><code>packages/mermaid/src/schemas/config.schema.yaml</code> - Config schema</li>
   </ul>
 
