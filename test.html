@@ -59,7 +59,8 @@
   <pre><code>mermaid.initialize({
   startOnLoad: true,
   securityLevel: 'sandbox',
-  sandboxBaseUrl: window.location.href  // or any absolute URL
+  sandboxBaseUrl: window.location.href,  // or any absolute URL
+  flowchart: { htmlLabels: false }       // recommended for sandbox mode
 });</code></pre>
 
   <table>
@@ -72,6 +73,11 @@
       <td><code>sandboxBaseUrl</code></td>
       <td>string</td>
       <td>Base URL for resolving relative links. Only applies when <code>securityLevel</code> is <code>'sandbox'</code>.</td>
+    </tr>
+    <tr>
+      <td><code>flowchart.htmlLabels</code></td>
+      <td>boolean</td>
+      <td>Set to <code>false</code> for sandbox mode. When <code>true</code> (default), labels use <code>&lt;foreignObject&gt;</code> with HTML, which doesn't render in data: URI iframes due to security restrictions. Setting to <code>false</code> uses pure SVG text instead.</td>
     </tr>
   </table>
 
