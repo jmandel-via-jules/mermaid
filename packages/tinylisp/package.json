@@ -1,0 +1,41 @@
+{
+  "name": "tinylisp",
+  "version": "0.1.0",
+  "description": "🌸 A cute, powerful Lisp interpreter for TypeScript",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "tinylisp": "./dist/repl.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "repl": "node --loader ts-node/esm src/repl.ts",
+    "test": "node --test --loader ts-node/esm src/*.test.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "lisp",
+    "scheme",
+    "interpreter",
+    "typescript",
+    "functional"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}
